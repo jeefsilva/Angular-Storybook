@@ -1,0 +1,8 @@
+name: sipock-storybook
+path: ../dist
+buildpack: staticfile_buildpack
+
+memory: 32M
+instances: 1
+routes:
+- route: 'sobtic-sipock-storybook-dev.cfapps.io'

@@ -1,0 +1,42 @@
+# Templates
+.deploy: &deploy
+  stage: deploy
+  image: ruby:2
+  dependencies:
+    - build
+  variables:
+    TRAVIS_OS_NAME: linux
+  script:
+    - gem install dpl
+    - dpl --provider=cloudfoundry --username=$CF_USER --password=$CF_PASSWORD --organization=$CF_ORG --api=$CF_API --space=$CI_ENVIRONMENT_SLUG --manifest=./deploy/$CI_ENVIRONMENT_SLUG.yml
+
+
+stages:
+  - build
+  - deploy
+
+cache:
+  paths:
+    - node_modules/
+
+build:
+  stage: build
+  image: node:8
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  only:
+    - development
+  script:
+    - npm install
+    - npm run storybook:build
+  artifacts:
+    name: "dist-$CI_COMMIT_REF_NAME"
+    expire_in: 3 days
+    paths:
+      - dist/
+
+deploy:development:
+  <<: *deploy
+  environment: development
+  only:
+    - development
